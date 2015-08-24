@@ -6,14 +6,14 @@ from IO.read import read_from_csv
 from utils import split_train_test
 from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier
-from selector.selector import randomSelector
+from selector.selector import randomSelector, ruleScore1
 
 import numpy as np
 from evaluator.evaluator import buildCoverageMatrix, evaluate
 import pandas as pd
 
 if __name__ == "__main__":
-    nb_learners = 100
+    nb_learners = 10
     rf = customRF(nb_learners)
     df = read_from_csv()
     df_train, df_test = split_train_test(df,75)
@@ -26,26 +26,25 @@ if __name__ == "__main__":
     for estimator in estimators:
         rules.extend([ rule for rule in get_rules(estimator.tree_, df.columns)])
 
-        #tree.export_graphviz(estimator,out_file='tree.dot')
 
-    # expr = '( ( (dtsurv - dtdebeff) <= 5 ) and ( (typsin < 1) or (typsin>1) ))'
-    # expr = parse(expr)
-    # print expr
-    #
-    # expr = '((attribute_22 <= 1.0) and (attribute_21 <= 2) and (attribute_2 > 3))'
-    # expr = parse(expr)
-    # print expr
-    #print(df_train
+    print(len(rules))
 
-    #CM = buildCoverageMatrix(df_test, rules)
+    k = 10
 
-    #evaluate(CM, df_test,nb_learner=5)
-
-    subsetrules =  randomSelector(rules,100)
+    subsetrules =  randomSelector(rules,k)
 
     print(subsetrules)
 
-    CM2 = buildCoverageMatrix(df_test, subsetrules )
+    CMRandomTest = buildCoverageMatrix(df_test, subsetrules )
 
-    evaluate(CM2, df_test, len(rules), nb_learners)
+    print("Random selector")
+    evaluate(CMRandomTest, df_test, len(rules), nb_learners, k=k)
 
+    CMRuleScore1Train = buildCoverageMatrix(df_train, rules )
+
+    ruleScore1(df_train, CMRuleScore1Train, rules,k)
+
+    CMRuleScore1Test = buildCoverageMatrix(df_test, rules )
+
+    print("Rule score 1")
+    evaluate(CMRuleScore1Test, df_test, len(rules), nb_learners, k=k)

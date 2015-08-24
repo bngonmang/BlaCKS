@@ -16,8 +16,8 @@ def buildCoverageMatrix(df, rules):
     return result
 
 def evaluate(coverageMatrix, df, total_rules_number, nb_learner=10, score_function = f1_score, k=100):
-    print( ((k/total_rules_number)*nb_learner)/2 )
+    #print( ((k/total_rules_number)*nb_learner)/2 )
     predictions = [ int( (np.count_nonzero(row) >= ((k/total_rules_number)*nb_learner)/2 ) )  for row in coverageMatrix ]
     #print (predictions)
     #print(df['Class'])
-    print(score_function(df['Class'], predictions))
+    print("Evaluation result: " + str(score_function(df['Class'], predictions)))
